@@ -11,6 +11,11 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <sys/wait.h>
+#include <fcntl.h>
+#include <pthread.h>
+#include <sys/stat.h>
+
+#define PIPE_PATH "/tmp/moniteur_pipe"
 
 // Structure de configuration
 typedef struct {
@@ -20,22 +25,24 @@ typedef struct {
 } Config;
 
 Config config;
-volatile int shutdown_flag = 0;  // Correction: remplacement de sig_atomic_t
+volatile int shutdown_flag = 0;
+volatile int running = 1;
 
 // Fonction de gestion des signaux
 void handle_signal(int signum) {
     switch (signum) {
-        case SIGTERM: // Signal de terminaison
+        case SIGTERM:
             openlog("Superviseur", LOG_PID | LOG_CONS, LOG_USER);
             syslog(LOG_INFO, "Received SIGTERM: Graceful shutdown initiated");
             closelog();
             shutdown_flag = 1;
+            running = 0;
             break;
-        case SIGUSR1: // Signal de rechargement configuration
-            // Implémenter le rechargement ici
+        case SIGUSR1:
+            // Rechargement config
             break;
-        case SIGUSR2: // Signal de rapport d'état
-            // Implémenter le rapport ici
+        case SIGUSR2:
+            // Rapport d'état
             break;
     }
 }
@@ -53,7 +60,7 @@ void log_event(const char* level, const char* message) {
     struct tm* tm_info = localtime(&now);
     char timestamp[20];
     strftime(timestamp, 20, "%Y-%m-%d %H:%M:%S", tm_info);
-    
+
     FILE* log_file = fopen(config.log_file, "a");
     if (log_file) {
         fprintf(log_file, "[%s] [%s] %s\n", timestamp, level, message);
@@ -61,22 +68,47 @@ void log_event(const char* level, const char* message) {
     }
 }
 
-// Gestion des clients
+// Lecture des alertes du moniteur
+void* listen_alerts_from_moniteur(void* arg) {
+    char buffer[128];
+    int fd = open(PIPE_PATH, O_RDONLY);
+    if (fd == -1) {
+        perror("[Superviseur] Erreur ouverture du pipe");
+        pthread_exit(NULL);
+    }
+
+    printf("[Superviseur] Écoute des alertes du moniteur...\n");
+
+    while (running) {
+        memset(buffer, 0, sizeof(buffer));
+        int n = read(fd, buffer, sizeof(buffer) - 1);
+        if (n > 0) {
+            printf("[ALERTE MONITEUR] %s", buffer);
+            log_event("ALERTE", buffer);
+        } else {
+            sleep(1);
+        }
+    }
+
+    close(fd);
+    return NULL;
+}
+
+// Gestion des clients TCP
 void handle_client(int client_socket) {
     char buffer[1024];
     char response[1024];
-    
+
     sprintf(response, "Superviseur Central SSCD v1.0\r\n> ");
     send(client_socket, response, strlen(response), 0);
-    
+
     while (1) {
         memset(buffer, 0, sizeof(buffer));
         int read_size = recv(client_socket, buffer, sizeof(buffer), 0);
-        
         if (read_size <= 0) break;
-        
+
         buffer[strcspn(buffer, "\r\n")] = 0;
-        
+
         if (strcmp(buffer, "HELP") == 0) {
             strcpy(response, "Available commands: STATUS, HELP, QUIT\r\n> ");
         } else if (strcmp(buffer, "STATUS") == 0) {
@@ -90,6 +122,7 @@ void handle_client(int client_socket) {
         }
         send(client_socket, response, strlen(response), 0);
     }
+
     close(client_socket);
 }
 
@@ -98,68 +131,67 @@ int main() {
     struct sockaddr_in address;
     int addrlen = sizeof(address);
     struct sigaction sa;
-    
+
     init_config();
-    
-    // Configuration des handlers de signaux
+
     sigemptyset(&sa.sa_mask);
     sa.sa_flags = SA_RESTART;
     sa.sa_handler = handle_signal;
-    
+
     sigaction(SIGTERM, &sa, NULL);
     sigaction(SIGUSR1, &sa, NULL);
     sigaction(SIGUSR2, &sa, NULL);
-    
+
+    // Créer le thread d'écoute d'alerte
+    pthread_t alert_thread;
+    pthread_create(&alert_thread, NULL, listen_alerts_from_moniteur, NULL);
+
     // Création du socket
     if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
         perror("socket failed");
         exit(EXIT_FAILURE);
     }
-    
-    // Configuration du socket
+
     address.sin_family = AF_INET;
     address.sin_addr.s_addr = INADDR_ANY;
     address.sin_port = htons(config.port);
-    
-    // Liaison du socket
+
     if (bind(server_fd, (struct sockaddr *)&address, sizeof(address)) < 0) {
         perror("bind failed");
         exit(EXIT_FAILURE);
     }
-    
-    // Mise en écoute
+
     if (listen(server_fd, 10) < 0) {
         perror("listen failed");
         exit(EXIT_FAILURE);
     }
-    
+
     printf("Superviseur running on port %d\n", config.port);
     log_event("INFO", "Superviseur démarré");
-    
-    // Boucle principale
+
     while (!shutdown_flag) {
         client_socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen);
         if (client_socket < 0) {
             perror("accept error");
             continue;
         }
-        
+
         log_event("INFO", "Nouvelle connexion client");
-        
-        // Gestion concurrente des clients
+
         pid_t pid = fork();
-        if (pid == 0) { // Processus fils
+        if (pid == 0) {
             close(server_fd);
             handle_client(client_socket);
             exit(0);
-        } else if (pid > 0) { // Processus père
+        } else if (pid > 0) {
             close(client_socket);
         } else {
             perror("fork failed");
         }
     }
-    
-    // Nettoyage avant fermeture
+
+    running = 0;
+    pthread_join(alert_thread, NULL);
     log_event("INFO", "Arrêt gracieux du superviseur");
     close(server_fd);
     return 0;
