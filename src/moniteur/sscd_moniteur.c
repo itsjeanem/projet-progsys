@@ -14,14 +14,17 @@
 
 volatile int running = 1;
 
-void handle_signal(int sig) {
+void handle_signal(int sig)
+{
     running = 0;
 }
 
 // Lecture de la charge CPU depuis /proc/stat
-float read_cpu_usage() {
+float read_cpu_usage()
+{
     FILE *fp = fopen("/proc/stat", "r");
-    if (!fp) return -1;
+    if (!fp)
+        return -1;
 
     char buffer[1024];
     fgets(buffer, sizeof(buffer), fp); // lecture de la 1re ligne "cpu"
@@ -35,7 +38,8 @@ float read_cpu_usage() {
     static unsigned long prev_total = 0, prev_active = 0;
     float cpu_usage = 0.0;
 
-    if (prev_total != 0) {
+    if (prev_total != 0)
+    {
         cpu_usage = 100.0 * (active - prev_active) / (total - prev_total);
     }
 
@@ -45,22 +49,27 @@ float read_cpu_usage() {
     return cpu_usage;
 }
 
-void log_metrics(float cpu_usage) {
+void log_metrics(float cpu_usage)
+{
     FILE *fp = fopen(LOG_FILE, "a");
-    if (!fp) return;
+    if (!fp)
+        return;
 
     time_t now = time(NULL);
     struct tm *tm_info = localtime(&now);
     char timestamp[32];
     strftime(timestamp, sizeof(timestamp), "%Y-%m-%d %H:%M:%S", tm_info);
 
-    fprintf(fp, "%s,%.2f\n", timestamp, cpu_usage);
+    // Format : TIMESTAMP,TYPE,VALUE
+    fprintf(fp, "%s,METRIC,%.2f\n", timestamp, cpu_usage);
     fclose(fp);
 }
 
-void send_alert(float value) {
+void send_alert(float value)
+{
     int fd = open(PIPE_PATH, O_WRONLY);
-    if (fd >= 0) {
+    if (fd >= 0)
+    {
         char alert[128];
         snprintf(alert, sizeof(alert), "ALERT:CPU_HIGH:%.2f\n", value);
         write(fd, alert, strlen(alert));
@@ -68,7 +77,8 @@ void send_alert(float value) {
     }
 }
 
-int main() {
+int main()
+{
     signal(SIGINT, handle_signal);
     signal(SIGTERM, handle_signal);
 
@@ -77,14 +87,17 @@ int main() {
 
     printf("[Moniteur] Démarrage de la surveillance...\n");
 
-    while (running) {
+    while (running)
+    {
         float cpu = read_cpu_usage();
-        if (cpu < 0) continue;
+        if (cpu < 0)
+            continue;
 
         log_metrics(cpu);
         printf("[Moniteur] CPU: %.2f%%\n", cpu);
 
-        if (cpu > ALERT_CPU_THRESHOLD) {
+        if (cpu > ALERT_CPU_THRESHOLD)
+        {
             printf("[Moniteur] 🚨 Alerte: CPU élevé!\n");
             send_alert(cpu);
         }
