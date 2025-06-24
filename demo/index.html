@@ -2,93 +2,84 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Dashboard CPU - SSCD</title>
+  <title>Dashboard SSCD</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="data.js"></script>
   <style>
     body { font-family: Arial; background: #f4f4f4; text-align: center; padding: 30px; }
-    canvas { background: white; border: 1px solid #ccc; padding: 10px; }
+    canvas { background: white; border: 1px solid #ccc; margin-bottom: 30px; }
   </style>
 </head>
 <body>
-  <h1>Surveillance CPU (Moniteur SSCD)</h1>
-  <canvas id="cpuChart" width="900" height="400"></canvas>
+  <h1>Tableau de bord SSCD</h1>
+
+  <div>
+    <canvas id="cpuChart" width="900" height="300"></canvas>
+    <canvas id="ramChart" width="900" height="300"></canvas>
+    <canvas id="loadChart" width="900" height="300"></canvas>
+  </div>
+
   <p id="lastUpdate">Dernière mise à jour : --</p>
 
   <script>
-    async function fetchAndRenderChart() {
-      try {
-        const response = await fetch("data.js");
-        const jsText = await response.text();
-        eval(jsText);  // charge cpuData
+    async function fetchAndRender() {
+      const res = await fetch("data.js");
+      const jsText = await res.text();
+      eval(jsText); // charge metricsData[]
 
-        const labels = cpuData.map(pt => pt.time);
-        const values = cpuData.map(pt => pt.value);
-        const alertPoints = cpuData
-          .map((pt, i) => pt.alert ? {x: pt.time, y: pt.value} : null)
-          .filter(p => p !== null);
+      const labels = metricsData.map(pt => pt.time);
+      const cpu = metricsData.map(pt => pt.CPU);
+      const ram = metricsData.map(pt => pt.RAM);
+      const load = metricsData.map(pt => pt.LOAD);
+      const alerts = metricsData
+        .map((pt, i) => pt.alert ? { x: pt.time, y: pt.CPU } : null)
+        .filter(p => p);
 
-        const ctx = document.getElementById('cpuChart').getContext('2d');
-
-        if (window.cpuChart) {
-          window.cpuChart.destroy();  // clear previous chart
-        }
-
-        window.cpuChart = new Chart(ctx, {
+      function buildChart(id, label, data, alertPoints, color) {
+        const ctx = document.getElementById(id).getContext('2d');
+        if (window[id]) window[id].destroy();
+        window[id] = new Chart(ctx, {
           type: 'line',
           data: {
             labels: labels,
             datasets: [
               {
-                label: 'CPU (%)',
-                data: values,
-                borderColor: 'rgb(0, 123, 255)',
-                backgroundColor: 'rgba(0, 123, 255, 0.2)',
+                label: label,
+                data: data,
+                borderColor: color,
+                backgroundColor: color.replace("1)", "0.2)"),
                 fill: true,
                 tension: 0.3
               },
-              {
-                label: 'Alertes CPU > 75%',
+              ...(alertPoints.length > 0 && id === "cpuChart" ? [{
+                label: "CPU ALERT",
                 data: alertPoints,
-                type: 'scatter',
-                backgroundColor: 'red',
+                type: "scatter",
+                backgroundColor: "red",
                 pointRadius: 5
-              }
+              }] : [])
             ]
           },
           options: {
             responsive: true,
             scales: {
-              y: {
-                min: 0,
-                max: 100,
-                title: { display: true, text: "Utilisation CPU (%)" }
-              },
-              x: {
-                title: { display: true, text: "Temps" }
-              }
-            },
-            plugins: {
-              legend: {
-                labels: {
-                  usePointStyle: true
-                }
-              }
+              y: { beginAtZero: true },
+              x: { ticks: { maxRotation: 60, minRotation: 30 } }
             }
           }
         });
-
-        document.getElementById('lastUpdate').textContent =
-          "Dernière mise à jour : " + new Date().toLocaleTimeString();
-      } catch (err) {
-        console.error("Erreur de chargement des données:", err);
       }
+
+      buildChart("cpuChart", "CPU (%)", cpu, alerts, "rgba(0,123,255,1)");
+      buildChart("ramChart", "RAM utilisée (%)", ram, [], "rgba(40,167,69,1)");
+      buildChart("loadChart", "Load Average (1min)", load, [], "rgba(255,193,7,1)");
+
+      document.getElementById("lastUpdate").textContent =
+        "Dernière mise à jour : " + new Date().toLocaleTimeString();
     }
 
-    // Initialisation
-    fetchAndRenderChart();
-
-    // 🔁 Rafraîchir toutes les 30 secondes
-    setInterval(fetchAndRenderChart, 30000);
+    fetchAndRender();
+    setInterval(fetchAndRender, 30000);
   </script>
 </body>
 </html>
