@@ -26,8 +26,9 @@ void rotate_log_if_needed()
 
     if (line_count >= ROTATION_THRESHOLD)
     {
+        printf("[Database] Rotation des logs nécessaire (%d lignes)\n", line_count);
         // Créer dossier si inexistant
-        mkdir(ARCHIVE_DIR);
+        mkdir(ARCHIVE_DIR, 0755);
 
         time_t now = time(NULL);
         struct tm *tm_info = localtime(&now);
