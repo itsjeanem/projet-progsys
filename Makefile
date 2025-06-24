@@ -2,14 +2,14 @@ CC = gcc
 CFLAGS = -Wall -Wextra -g
 
 # Source files
-SUPERVISEUR = src/superviseur/superviseur.c
+SUPERVISEUR = src/superviseur/sscd_superviseur.c
 MONITEUR = src/moniteur/sscd_moniteur.c
 DATABASE = src/database/sscd_database.c
 
 # Binary names
-BIN_SUPERVISEUR = sscd_superviseur
-BIN_MONITEUR = sscd_moniteur
-BIN_DATABASE = sscd_database
+BIN_SUPERVISEUR = src/superviseur/sscd_superviseur
+BIN_MONITEUR = src/moniteur/sscd_moniteur
+BIN_DATABASE = src/database/sscd_database
 
 all: $(BIN_SUPERVISEUR) $(BIN_MONITEUR) $(BIN_DATABASE)
 
