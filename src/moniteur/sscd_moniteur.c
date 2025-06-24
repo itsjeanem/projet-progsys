@@ -53,7 +53,62 @@ float read_cpu_usage()
     return cpu_usage;
 }
 
-void log_metrics(float cpu_usage)
+float read_ram_usage()
+{
+    FILE *fp = fopen("/proc/meminfo", "r");
+    if (!fp)
+        return -1;
+
+    char label[64];
+    unsigned long total = 0, free = 0, buffers = 0, cached = 0;
+
+    while (!feof(fp))
+    {
+        fscanf(fp, "%63s %lu kB\n", label, &total);
+
+        if (strcmp(label, "MemTotal:") == 0)
+        {
+            fscanf(fp, "%lu", &total);
+        }
+        else if (strcmp(label, "MemAvailable:") == 0)
+        {
+            fscanf(fp, "%lu", &free);
+        }
+        else if (strcmp(label, "Buffers:") == 0)
+        {
+            fscanf(fp, "%lu", &buffers);
+        }
+        else if (strcmp(label, "Cached:") == 0)
+        {
+            fscanf(fp, "%lu", &cached);
+        }
+
+        if (total && free)
+            break;
+    }
+
+    fclose(fp);
+
+    if (total == 0)
+        return -1;
+    float used = 100.0 * (1.0 - ((float)free / total));
+    return used;
+}
+
+float read_load_average()
+{
+    FILE *fp = fopen("/proc/loadavg", "r");
+    if (!fp)
+        return -1;
+
+    float load = 0.0;
+    fscanf(fp, "%f", &load);
+    fclose(fp);
+
+    return load;
+}
+
+void log_metrics(float cpu, float ram, float load)
 {
     FILE *fp = fopen(LOG_FILE, "a");
     if (!fp)
@@ -64,8 +119,10 @@ void log_metrics(float cpu_usage)
     char timestamp[32];
     strftime(timestamp, sizeof(timestamp), "%Y-%m-%d %H:%M:%S", tm_info);
 
-    // Format : TIMESTAMP,TYPE,VALUE
-    fprintf(fp, "%s,METRIC,%.2f\n", timestamp, cpu_usage);
+    // Format étendu : 3 lignes par mesure
+    fprintf(fp, "%s,METRIC,CPU,%.2f\n", timestamp, cpu);
+    fprintf(fp, "%s,METRIC,RAM,%.2f\n", timestamp, ram);
+    fprintf(fp, "%s,METRIC,LOAD,%.2f\n", timestamp, load);
     fclose(fp);
 }
 
@@ -94,11 +151,15 @@ int main()
     while (running)
     {
         float cpu = read_cpu_usage();
-        if (cpu < 0)
+        float ram = read_ram_usage();
+        float load = read_load_average();
+
+        if (cpu < 0 || ram < 0 || load < 0)
             continue;
 
-        log_metrics(cpu);
-        printf("[Moniteur] CPU: %.2f%%\n", cpu);
+        log_metrics(cpu, ram, load);
+
+        printf("[Moniteur] CPU: %.2f%% | RAM: %.2f%% | LOAD: %.2f\n", cpu, ram, load);
 
         if (cpu > ALERT_CPU_THRESHOLD)
         {
@@ -106,7 +167,7 @@ int main()
             send_alert(cpu);
         }
 
-        sleep(5);
+        sleep(5); // Pause de 5 secondes entre les mesures
     }
 
     unlink(PIPE_PATH);

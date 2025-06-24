@@ -3,7 +3,9 @@
 
 void handle_signal();
 float read_cpu_usage();
-void log_metrics(float cpu_usage);
+float read_ram_usage();
+float read_load_average();
+void log_metrics(float cpu, float ram, float load);
 void send_alert(float value);
 
 #endif
