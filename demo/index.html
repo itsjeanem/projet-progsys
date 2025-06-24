@@ -2,54 +2,93 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Dashboard SSCD - CPU Monitor</title>
+  <title>Dashboard CPU - SSCD</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="data.js"></script>
   <style>
-    body {
-      font-family: Arial;
-      text-align: center;
-      padding: 30px;
-      background: #f4f4f4;
-    }
-    canvas {
-      background: white;
-      border: 1px solid #ccc;
-      padding: 10px;
-    }
+    body { font-family: Arial; background: #f4f4f4; text-align: center; padding: 30px; }
+    canvas { background: white; border: 1px solid #ccc; padding: 10px; }
   </style>
 </head>
 <body>
-  <h1>Surveillance CPU - SSCD</h1>
-  <canvas id="cpuChart" width="800" height="400"></canvas>
+  <h1>Surveillance CPU (Moniteur SSCD)</h1>
+  <canvas id="cpuChart" width="900" height="400"></canvas>
+  <p id="lastUpdate">Dernière mise à jour : --</p>
 
   <script>
-    const labels = cpuData.map(item => item.time);
-    const values = cpuData.map(item => item.value);
+    async function fetchAndRenderChart() {
+      try {
+        const response = await fetch("data.js");
+        const jsText = await response.text();
+        eval(jsText);  // charge cpuData
 
-    const ctx = document.getElementById('cpuChart').getContext('2d');
-    const cpuChart = new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: labels,
-        datasets: [{
-          label: 'Utilisation CPU (%)',
-          data: values,
-          borderColor: 'rgb(255, 99, 132)',
-          backgroundColor: 'rgba(255, 99, 132, 0.2)',
-          tension: 0.3,
-          fill: true
-        }]
-      },
-      options: {
-        scales: {
-          y: {
-            beginAtZero: true,
-            max: 100
-          }
+        const labels = cpuData.map(pt => pt.time);
+        const values = cpuData.map(pt => pt.value);
+        const alertPoints = cpuData
+          .map((pt, i) => pt.alert ? {x: pt.time, y: pt.value} : null)
+          .filter(p => p !== null);
+
+        const ctx = document.getElementById('cpuChart').getContext('2d');
+
+        if (window.cpuChart) {
+          window.cpuChart.destroy();  // clear previous chart
         }
+
+        window.cpuChart = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: labels,
+            datasets: [
+              {
+                label: 'CPU (%)',
+                data: values,
+                borderColor: 'rgb(0, 123, 255)',
+                backgroundColor: 'rgba(0, 123, 255, 0.2)',
+                fill: true,
+                tension: 0.3
+              },
+              {
+                label: 'Alertes CPU > 75%',
+                data: alertPoints,
+                type: 'scatter',
+                backgroundColor: 'red',
+                pointRadius: 5
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            scales: {
+              y: {
+                min: 0,
+                max: 100,
+                title: { display: true, text: "Utilisation CPU (%)" }
+              },
+              x: {
+                title: { display: true, text: "Temps" }
+              }
+            },
+            plugins: {
+              legend: {
+                labels: {
+                  usePointStyle: true
+                }
+              }
+            }
+          }
+        });
+
+        document.getElementById('lastUpdate').textContent =
+          "Dernière mise à jour : " + new Date().toLocaleTimeString();
+      } catch (err) {
+        console.error("Erreur de chargement des données:", err);
       }
-    });
+    }
+
+    // Initialisation
+    fetchAndRenderChart();
+
+    // 🔁 Rafraîchir toutes les 30 secondes
+    setInterval(fetchAndRenderChart, 30000);
   </script>
 </body>
 </html>
