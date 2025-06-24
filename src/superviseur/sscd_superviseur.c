@@ -14,16 +14,17 @@
 #include <fcntl.h>
 #include <pthread.h>
 #include <sys/stat.h>
+#include "sscd_superviseur.h"
 
 #define PIPE_PATH "/tmp/moniteur_pipe"
 
 // Structure de configuration
-typedef struct
-{
-    char log_file[256];
-    char log_level[10];
-    int port;
-} Config;
+// typedef struct
+// {
+//     char log_file[256];
+//     char log_level[10];
+//     int port;
+// } Config;
 
 Config config;
 volatile int shutdown_flag = 0;
@@ -56,7 +57,7 @@ void handle_signal(int signum)
 // Initialisation de la configuration
 void init_config()
 {
-    strcpy(config.log_file, "superviseur.log");
+    strcpy(config.log_file, "src/superviseur/superviseur.log");
     strcpy(config.log_level, "INFO");
     config.port = PORT;
 }
@@ -78,8 +79,9 @@ void log_event(const char *level, const char *message)
 }
 
 // Lecture des alertes du moniteur
-void *listen_alerts_from_moniteur(void *arg)
+void *listen_alerts_from_moniteur()
 {
+
     char buffer[128];
     int fd = open(PIPE_PATH, O_RDONLY);
     if (fd == -1)

@@ -7,14 +7,18 @@
 #include <sys/stat.h>
 #include <signal.h>
 #include <time.h>
+#include <stdlib.h>
+#include <stddef.h>
+#include <stdio.h>
+#include "sscd_moniteur.h"
 
 #define PIPE_PATH "/tmp/moniteur_pipe"
 #define ALERT_CPU_THRESHOLD 75.0
-#define LOG_FILE "moniteur_log.csv"
+#define LOG_FILE "src/moniteur/moniteur_log.csv"
 
 volatile int running = 1;
 
-void handle_signal(int sig)
+void handle_signal()
 {
     running = 0;
 }
