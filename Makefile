@@ -7,7 +7,7 @@ MONITEUR = src/moniteur/sscd_moniteur.c
 DATABASE = src/database/sscd_database.c
 SIMULATEUR = src/simulateur/sscd_simulateur.c
 CLIENTS = src/clients/sscd_clients.c
-ORDONNANCEUR = ORDONNANCEUR = src/ordonnanceur/init.c src/ordonnanceur/ordonnanceur.c
+ORDONNANCEUR = src/ordonnanceur/init.c src/ordonnanceur/ordonnanceur.c
 
 # Binary names
 BIN_SUPERVISEUR = src/superviseur/sscd_superviseur
