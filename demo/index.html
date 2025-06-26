@@ -1,85 +1,321 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="fr">
-<head>
-  <meta charset="UTF-8">
-  <title>Dashboard SSCD</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="data.js"></script>
-  <style>
-    body { font-family: Arial; background: #f4f4f4; text-align: center; padding: 30px; }
-    canvas { background: white; border: 1px solid #ccc; margin-bottom: 30px; }
-  </style>
-</head>
-<body>
-  <h1>Tableau de bord SSCD</h1>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Dashboard SSCD</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="data.js"></script>
+    <style>
+      body {
+        font-family: Arial;
+        background: #f4f4f4;
+        text-align: center;
+        padding: 30px;
+      }
+      canvas {
+        background: white;
+        border: 1px solid #ccc;
+        margin-bottom: 30px;
+        max-width: 100%;
+        height: auto;
+      }
+      .chart-container {
+        margin-bottom: 30px;
+        padding: 20px;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      .chart-title {
+        font-size: 18px;
+        font-weight: bold;
+        margin-bottom: 15px;
+        color: #333;
+      }
+      .stats {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        margin-bottom: 30px;
+        flex-wrap: wrap;
+      }
+      .stat-card {
+        background: white;
+        padding: 15px 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        min-width: 120px;
+      }
+      .stat-value {
+        font-size: 24px;
+        font-weight: bold;
+        color: #007bff;
+      }
+      .stat-label {
+        font-size: 14px;
+        color: #666;
+        margin-top: 5px;
+      }
+      .alert-indicator {
+        color: #dc3545;
+        font-weight: bold;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Tableau de bord SSCD</h1>
 
-  <div>
-    <canvas id="cpuChart" width="900" height="300"></canvas>
-    <canvas id="ramChart" width="900" height="300"></canvas>
-    <canvas id="loadChart" width="900" height="300"></canvas>
-  </div>
+    <div class="stats" id="stats">
+      <!-- Les statistiques seront générées ici -->
+    </div>
 
-  <p id="lastUpdate">Dernière mise à jour : --</p>
+    <div class="chart-container">
+      <div class="chart-title">Utilisation CPU (%)</div>
+      <canvas id="cpuChart" width="900" height="300"></canvas>
+    </div>
 
-  <script>
-    async function fetchAndRender() {
-      const res = await fetch("data.js");
-      const jsText = await res.text();
-      eval(jsText); // charge metricsData[]
+    <div class="chart-container">
+      <div class="chart-title">Utilisation RAM (%)</div>
+      <canvas id="ramChart" width="900" height="300"></canvas>
+    </div>
 
-      const labels = metricsData.map(pt => pt.time);
-      const cpu = metricsData.map(pt => pt.CPU);
-      const ram = metricsData.map(pt => pt.RAM);
-      const load = metricsData.map(pt => pt.LOAD);
-      const alerts = metricsData
-        .map((pt, i) => pt.alert ? { x: pt.time, y: pt.CPU } : null)
-        .filter(p => p);
+    <div class="chart-container">
+      <div class="chart-title">Load Average (1min)</div>
+      <canvas id="loadChart" width="900" height="300"></canvas>
+    </div>
 
-      function buildChart(id, label, data, alertPoints, color) {
-        const ctx = document.getElementById(id).getContext('2d');
-        if (window[id]) window[id].destroy();
-        window[id] = new Chart(ctx, {
-          type: 'line',
-          data: {
-            labels: labels,
-            datasets: [
-              {
-                label: label,
-                data: data,
-                borderColor: color,
-                backgroundColor: color.replace("1)", "0.2)"),
-                fill: true,
-                tension: 0.3
-              },
-              ...(alertPoints.length > 0 && id === "cpuChart" ? [{
-                label: "CPU ALERT",
-                data: alertPoints,
-                type: "scatter",
-                backgroundColor: "red",
-                pointRadius: 5
-              }] : [])
-            ]
-          },
-          options: {
-            responsive: true,
-            scales: {
-              y: { beginAtZero: true },
-              x: { ticks: { maxRotation: 60, minRotation: 30 } }
-            }
-          }
-        });
+    <p id="lastUpdate">Dernière mise à jour : --</p>
+
+    <script>
+      // Variables globales pour stocker les instances des graphiques
+      let cpuChart, ramChart, loadChart;
+
+      function updateStats() {
+        if (!metricsData || metricsData.length === 0) return;
+
+        const latest = metricsData[metricsData.length - 1];
+        const cpuValues = metricsData.map((d) => d.CPU);
+        const ramValues = metricsData.map((d) => d.RAM);
+        const loadValues = metricsData.map((d) => d.LOAD);
+
+        const avgCPU = (cpuValues.reduce((a, b) => a + b, 0) / cpuValues.length).toFixed(1);
+        const avgRAM = (ramValues.reduce((a, b) => a + b, 0) / ramValues.length).toFixed(1);
+        const avgLoad = (loadValues.reduce((a, b) => a + b, 0) / loadValues.length).toFixed(2);
+        const alertCount = metricsData.filter((d) => d.alert).length;
+
+        const statsHTML = `
+        <div class="stat-card">
+          <div class="stat-value">${latest.CPU.toFixed(1)}%</div>
+          <div class="stat-label">CPU Actuel</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">${latest.RAM.toFixed(1)}%</div>
+          <div class="stat-label">RAM Actuelle</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">${latest.LOAD.toFixed(2)}</div>
+          <div class="stat-label">Load Actuel</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">${avgCPU}%</div>
+          <div class="stat-label">CPU Moyen</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value ${alertCount > 0 ? 'alert-indicator' : ''}">${alertCount}</div>
+          <div class="stat-label">Alertes CPU</div>
+        </div>
+      `;
+
+        document.getElementById('stats').innerHTML = statsHTML;
       }
 
-      buildChart("cpuChart", "CPU (%)", cpu, alerts, "rgba(0,123,255,1)");
-      buildChart("ramChart", "RAM utilisée (%)", ram, [], "rgba(40,167,69,1)");
-      buildChart("loadChart", "Load Average (1min)", load, [], "rgba(255,193,7,1)");
+      function renderCharts() {
+        // Vérifier que metricsData existe
+        if (typeof metricsData === 'undefined' || !metricsData || metricsData.length === 0) {
+          console.error('Aucune donnée disponible dans metricsData');
+          document.getElementById('lastUpdate').textContent = 'Erreur : Aucune donnée disponible';
+          return;
+        }
 
-      document.getElementById("lastUpdate").textContent =
-        "Dernière mise à jour : " + new Date().toLocaleTimeString();
-    }
+        // Préparation des données
+        const labels = metricsData.map((pt) => {
+          const date = new Date(pt.time);
+          return date.toLocaleTimeString('fr-FR', {
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+          });
+        });
 
-    fetchAndRender();
-    setInterval(fetchAndRender, 30000);
-  </script>
-</body>
+        const cpu = metricsData.map((pt) => pt.CPU);
+        const ram = metricsData.map((pt) => pt.RAM);
+        const load = metricsData.map((pt) => pt.LOAD);
+
+        // Points d'alerte pour le CPU
+        const alerts = metricsData.map((pt, i) => (pt.alert ? { x: i, y: pt.CPU } : null)).filter((p) => p !== null);
+
+        function buildChart(canvasId, chartInstance, label, data, alertPoints, color) {
+          const ctx = document.getElementById(canvasId).getContext('2d');
+
+          // Détruire l'ancien graphique s'il existe
+          if (chartInstance) {
+            chartInstance.destroy();
+          }
+
+          const datasets = [
+            {
+              label: label,
+              data: data,
+              borderColor: color,
+              backgroundColor: color.replace('1)', '0.2)'),
+              fill: true,
+              tension: 0.3,
+              pointRadius: 2,
+              pointHoverRadius: 5,
+              borderWidth: 2,
+            },
+          ];
+
+          // Ajouter les points d'alerte uniquement pour le graphique CPU
+          if (alertPoints.length > 0 && canvasId === 'cpuChart') {
+            datasets.push({
+              label: '🚨 Alertes CPU (>75%)',
+              data: alertPoints,
+              type: 'scatter',
+              backgroundColor: '#dc3545',
+              borderColor: '#dc3545',
+              pointRadius: 6,
+              pointHoverRadius: 8,
+              showLine: false,
+            });
+          }
+
+          return new Chart(ctx, {
+            type: 'line',
+            data: {
+              labels: labels,
+              datasets: datasets,
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              animation: {
+                duration: 0,
+              },
+              transitions: {
+                active: {
+                  animation: {
+                    duration: 0,
+                  },
+                },
+                show: {
+                  animations: {
+                    colors: { duration: 0 },
+                    visible: { duration: 0 },
+                  },
+                },
+                hide: {
+                  animations: {
+                    colors: { duration: 0 },
+                    visible: { duration: 0 },
+                  },
+                },
+              },
+              interaction: {
+                intersect: false,
+                mode: 'index',
+              },
+              plugins: {
+                legend: {
+                  position: 'top',
+                },
+                tooltip: {
+                  mode: 'index',
+                  intersect: false,
+                  callbacks: {
+                    title: function (tooltipItems) {
+                      const index = tooltipItems[0].dataIndex;
+                      return metricsData[index].time;
+                    },
+                  },
+                },
+              },
+              scales: {
+                y: {
+                  beginAtZero: true,
+                  grid: {
+                    color: 'rgba(0,0,0,0.1)',
+                  },
+                  ticks: {
+                    callback: function (value) {
+                      return canvasId === 'loadChart' ? value.toFixed(2) : value + '%';
+                    },
+                  },
+                },
+                x: {
+                  ticks: {
+                    maxRotation: 45,
+                    minRotation: 30,
+                    maxTicksLimit: 15,
+                  },
+                  grid: {
+                    color: 'rgba(0,0,0,0.1)',
+                  },
+                },
+              },
+            },
+          });
+        }
+
+        // Création des graphiques
+        cpuChart = buildChart('cpuChart', cpuChart, 'CPU (%)', cpu, alerts, 'rgba(0,123,255,1)');
+        ramChart = buildChart('ramChart', ramChart, 'RAM (%)', ram, [], 'rgba(40,167,69,1)');
+        loadChart = buildChart('loadChart', loadChart, 'Load Average', load, [], 'rgba(255,193,7,1)');
+
+        // Mise à jour des statistiques
+        updateStats();
+
+        // Mise à jour du timestamp
+        document.getElementById('lastUpdate').textContent = `Dernière mise à jour : ${new Date().toLocaleTimeString('fr-FR')} | ${metricsData.length} points de données`;
+      }
+
+      // Fonction pour recharger les données
+      async function fetchAndRender() {
+        try {
+          // Recharger le fichier data.js
+          const timestamp = new Date().getTime();
+          const script = document.createElement('script');
+          script.src = `data.js?t=${timestamp}`;
+
+          script.onload = function () {
+            renderCharts();
+          };
+
+          script.onerror = function () {
+            console.error('Erreur lors du chargement de data.js');
+            document.getElementById('lastUpdate').textContent = 'Erreur : Impossible de charger data.js';
+          };
+
+          // Supprimer l'ancien script s'il existe
+          const oldScript = document.querySelector('script[src*="data.js"]');
+          if (oldScript && oldScript !== script) {
+            oldScript.remove();
+          }
+
+          document.head.appendChild(script);
+        } catch (error) {
+          console.error('Erreur lors du chargement des données:', error);
+          document.getElementById('lastUpdate').textContent = 'Erreur : ' + error.message;
+        }
+      }
+
+      // Initialisation
+      document.addEventListener('DOMContentLoaded', function () {
+        renderCharts();
+
+        // Actualisation automatique toutes les 30 secondes
+        setInterval(fetchAndRender, 30000);
+      });
+    </script>
+  </body>
 </html>
