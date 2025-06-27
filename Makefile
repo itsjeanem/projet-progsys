@@ -30,10 +30,10 @@ $(BIN_DATABASE): $(DATABASE)
 	$(CC) $(CFLAGS) -o $@ $^
 
 $(BIN_SIMULATEUR) : $(SIMULATEUR)
-    $(CC) $(CFLAGS) -o $@ $^
+	$(CC) $(CFLAGS) -o $@ $^
 
 $(BIN_CLIENTS) : $(CLIENTS)
-    $(CC) $(CFLAGS) -o $@ $^
+	$(CC) $(CFLAGS) -o $@ $^
 
 $(BIN_ORDONNANCEUR): $(ORDONNANCEUR)
 	$(CC) $(CFLAGS) -o $@ $^
