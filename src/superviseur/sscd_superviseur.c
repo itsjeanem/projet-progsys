@@ -20,7 +20,8 @@
 #define MAX_CLIENTS 50
 
 // Structure pour suivre les clients connectés
-typedef struct {
+typedef struct
+{
     int socket_fd;
     char ip_address[INET_ADDRSTRLEN];
     int port;
@@ -96,8 +97,9 @@ void log_event(const char *level, const char *message)
 void add_client(int socket_fd, struct sockaddr_in *client_addr, pid_t pid)
 {
     pthread_mutex_lock(&clients_mutex);
-    
-    if (client_count < MAX_CLIENTS) {
+
+    if (client_count < MAX_CLIENTS)
+    {
         ClientInfo *client = &connected_clients[client_count];
         client->socket_fd = socket_fd;
         inet_ntop(AF_INET, &(client_addr->sin_addr), client->ip_address, INET_ADDRSTRLEN);
@@ -105,19 +107,19 @@ void add_client(int socket_fd, struct sockaddr_in *client_addr, pid_t pid)
         client->connect_time = time(NULL);
         client->process_id = pid;
         client->active = 1;
-        
+
         client_count++;
-        
+
         char log_msg[256];
-        snprintf(log_msg, sizeof(log_msg), 
-                "Nouveau client connecté: %s:%d (PID: %d) - Total: %d clients", 
-                client->ip_address, client->port, pid, client_count);
+        snprintf(log_msg, sizeof(log_msg),
+                 "Nouveau client connecté: %s:%d (PID: %d) - Total: %d clients",
+                 client->ip_address, client->port, pid, client_count);
         log_event("INFO", log_msg);
-        
-        printf("[Superviseur] 📱 Client connecté: %s:%d (PID: %d)\n", 
+
+        printf("[Superviseur] 📱 Client connecté: %s:%d (PID: %d)\n",
                client->ip_address, client->port, pid);
     }
-    
+
     pthread_mutex_unlock(&clients_mutex);
 }
 
@@ -125,25 +127,29 @@ void add_client(int socket_fd, struct sockaddr_in *client_addr, pid_t pid)
 void remove_client(pid_t pid)
 {
     pthread_mutex_lock(&clients_mutex);
-    
-    for (int i = 0; i < client_count; i++) {
-        if (connected_clients[i].process_id == pid && connected_clients[i].active) {
+
+    for (int i = 0; i < client_count; i++)
+    {
+        if (connected_clients[i].process_id == pid && connected_clients[i].active)
+        {
             connected_clients[i].active = 0;
-            
+
             char log_msg[256];
-            snprintf(log_msg, sizeof(log_msg), 
-                    "Client déconnecté: %s:%d (PID: %d)", 
-                    connected_clients[i].ip_address, 
-                    connected_clients[i].port, pid);
+            snprintf(log_msg, sizeof(log_msg),
+                     "Client déconnecté: %s:%d (PID: %d)",
+                     connected_clients[i].ip_address,
+                     connected_clients[i].port, pid);
             log_event("INFO", log_msg);
-            
-            printf("[Superviseur] 📱 Client déconnecté: %s:%d (PID: %d)\n", 
-                   connected_clients[i].ip_address, 
+
+            printf("[Superviseur] 📱 Client déconnecté: %s:%d (PID: %d)\n",
+                   connected_clients[i].ip_address,
                    connected_clients[i].port, pid);
-            
+
             // Compacter la liste en supprimant les clients inactifs
-            for (int j = i; j < client_count - 1; j++) {
-                if (!connected_clients[j].active) {
+            for (int j = i; j < client_count - 1; j++)
+            {
+                if (!connected_clients[j].active)
+                {
                     connected_clients[j] = connected_clients[j + 1];
                 }
             }
@@ -151,7 +157,7 @@ void remove_client(pid_t pid)
             break;
         }
     }
-    
+
     pthread_mutex_unlock(&clients_mutex);
 }
 
@@ -159,18 +165,23 @@ void remove_client(pid_t pid)
 void display_connected_clients()
 {
     pthread_mutex_lock(&clients_mutex);
-    
+
     printf("\n===== CLIENTS CONNECTÉS =====\n");
     printf("Nombre total de clients: %d\n", client_count);
-    
-    if (client_count == 0) {
+
+    if (client_count == 0)
+    {
         printf("Aucun client connecté.\n");
-    } else {
+    }
+    else
+    {
         printf("%-15s %-6s %-10s %-20s\n", "IP", "Port", "PID", "Temps de connexion");
         printf("-------------------------------------------------------\n");
-        
-        for (int i = 0; i < client_count; i++) {
-            if (connected_clients[i].active) {
+
+        for (int i = 0; i < client_count; i++)
+        {
+            if (connected_clients[i].active)
+            {
                 time_t duration = time(NULL) - connected_clients[i].connect_time;
                 printf("%-15s %-6d %-10d %ld secondes\n",
                        connected_clients[i].ip_address,
@@ -181,12 +192,12 @@ void display_connected_clients()
         }
     }
     printf("=============================\n\n");
-    
+
     // Log également l'information
     char log_msg[256];
     snprintf(log_msg, sizeof(log_msg), "État des clients: %d connectés", client_count);
     log_event("INFO", log_msg);
-    
+
     pthread_mutex_unlock(&clients_mutex);
 }
 
@@ -195,8 +206,9 @@ void cleanup_terminated_clients()
 {
     pid_t pid;
     int status;
-    
-    while ((pid = waitpid(-1, &status, WNOHANG)) > 0) {
+
+    while ((pid = waitpid(-1, &status, WNOHANG)) > 0)
+    {
         remove_client(pid);
     }
 }
@@ -205,9 +217,11 @@ void cleanup_terminated_clients()
 void *client_monitor_thread(void *arg)
 {
     (void)arg; // Supprimer le warning sur paramètre inutilisé
-    while (running) {
-        sleep(30); // Affiche les stats toutes les 30 secondes
-        if (running) {
+    while (running)
+    {
+        sleep(5); // Affiche les stats toutes les 5 secondes
+        if (running)
+        {
             printf("[Superviseur] 📊 Clients actifs: %d\n", client_count);
         }
     }
@@ -278,27 +292,32 @@ void handle_client(int client_socket)
         }
         else if (strcmp(buffer, "STATUS") == 0)
         {
-            snprintf(response, sizeof(response), 
-                    "System status: OK - %d clients connectés\r\n> ", client_count);
+            snprintf(response, sizeof(response),
+                     "System status: OK - %d clients connectés\r\n> ", client_count);
         }
         else if (strcmp(buffer, "CLIENTS") == 0)
         {
             pthread_mutex_lock(&clients_mutex);
             char client_list[2048] = "Clients connectés:\r\n";
-            
-            if (client_count == 0) {
+
+            if (client_count == 0)
+            {
                 strcat(client_list, "Aucun client connecté.\r\n");
-            } else {
-                for (int i = 0; i < client_count; i++) {
-                    if (connected_clients[i].active) {
+            }
+            else
+            {
+                for (int i = 0; i < client_count; i++)
+                {
+                    if (connected_clients[i].active)
+                    {
                         char client_info[256];
                         time_t duration = time(NULL) - connected_clients[i].connect_time;
                         snprintf(client_info, sizeof(client_info),
-                                "- %s:%d (PID: %d, connecté depuis %ld sec)\r\n",
-                                connected_clients[i].ip_address,
-                                connected_clients[i].port,
-                                connected_clients[i].process_id,
-                                duration);
+                                 "- %s:%d (PID: %d, connecté depuis %ld sec)\r\n",
+                                 connected_clients[i].ip_address,
+                                 connected_clients[i].port,
+                                 connected_clients[i].process_id,
+                                 duration);
                         strcat(client_list, client_info);
                     }
                 }
@@ -382,7 +401,7 @@ int main()
     printf("Superviseur démarré sur le port %d\n", config.port);
     printf("Commandes disponibles:\n");
     printf("  - SIGUSR2 : Afficher les clients connectés\n");
-    printf("  - SIGTERM : Arrêt gracieux\n\n");
+    // printf("  - SIGTERM : Arrêt gracieux\n\n");
     log_event("INFO", "Superviseur démarré avec suivi des clients");
 
     while (!shutdown_flag)
@@ -390,7 +409,8 @@ int main()
         client_socket = accept(server_fd, (struct sockaddr *)&client_addr, &client_addrlen);
         if (client_socket < 0)
         {
-            if (!shutdown_flag) {
+            if (!shutdown_flag)
+            {
                 perror("accept error");
             }
             continue;
@@ -421,16 +441,18 @@ int main()
     running = 0;
     pthread_join(alert_thread, NULL);
     pthread_join(monitor_thread, NULL);
-    
+
     // Fermer tous les sockets clients
     pthread_mutex_lock(&clients_mutex);
-    for (int i = 0; i < client_count; i++) {
-        if (connected_clients[i].active) {
+    for (int i = 0; i < client_count; i++)
+    {
+        if (connected_clients[i].active)
+        {
             kill(connected_clients[i].process_id, SIGTERM);
         }
     }
     pthread_mutex_unlock(&clients_mutex);
-    
+
     log_event("INFO", "Arrêt gracieux du superviseur");
     close(server_fd);
     return 0;
