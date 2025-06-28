@@ -13,17 +13,9 @@ sleep 2
 echo "[T=1s] Démarrage de l'ordonnanceur (connexion shared memory)"
 ./src/ordonnanceur/sscd_ordonnanceur &
 PID_ORDO=$!
-sleep 10
+sleep 20
 
-echo "[T=1s] Connexion du Client Worker #1"
-./src/clients/sscd_clients 192.168.1.10 45231 &
-PID_CLIENT1=$!
-sleep 1
 
-echo "[T=2s] Connexion du Client Worker #2"
-./src/clients/sscd_clients 192.168.1.11 45232 &
-PID_CLIENT2=$!
-sleep 1
 
 # echo "[T=2s] Démarrage du moniteur (collecte /proc toutes les 5s)"
 # ./src/moniteur/sscd_moniteur &
@@ -38,4 +30,4 @@ sleep 1
 # Attendre ou terminer les processus (optionnel)
 # kill $PID_CLIENT1 $PID_CLIENT2 $PID_MONITEUR $PID_DB $PID_ORDO $PID_SUPERVISEUR
 
-echo "Test d'intégration terminé."
+echo "Initialisation du système terminée."
