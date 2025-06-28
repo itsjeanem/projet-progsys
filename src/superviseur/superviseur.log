@@ -10,3 +10,125 @@
 [2025-06-28 13:16:29] [INFO] Superviseur démarré
 [2025-06-28 13:18:00] [INFO] Superviseur démarré
 [2025-06-28 13:39:46] [INFO] Superviseur démarré avec suivi des clients
+[2025-06-28 16:01:29] [INFO] Superviseur démarré avec suivi des clients
+[2025-06-28 16:03:10] [INFO] Nouveau client connecté: 127.0.0.1:52460 (PID: 22021) - Total: 1 clients
+[2025-06-28 16:03:20] [INFO] Client déconnecté: 127.0.0.1:52460 (PID: 22021)
+[2025-06-28 16:04:00] [INFO] Superviseur démarré avec suivi des clients
+[2025-06-28 16:04:04] [INFO] Nouveau client connecté: 127.0.0.1:57010 (PID: 22270) - Total: 1 clients
+[2025-06-28 16:04:06] [INFO] Nouveau client connecté: 127.0.0.1:51072 (PID: 22317) - Total: 2 clients
+[2025-06-28 16:04:14] [INFO] Client déconnecté: 127.0.0.1:57010 (PID: 22270)
+[2025-06-28 16:04:16] [INFO] Client déconnecté: 127.0.0.1:51072 (PID: 22317)
+[2025-06-28 16:04:49] [INFO] Nouveau client connecté: 127.0.0.1:47896 (PID: 22523) - Total: 1 clients
+[2025-06-28 16:04:52] [INFO] Nouveau client connecté: 127.0.0.1:47898 (PID: 22577) - Total: 2 clients
+[2025-06-28 16:04:59] [INFO] Client déconnecté: 127.0.0.1:47896 (PID: 22523)
+[2025-06-28 16:05:02] [INFO] Client déconnecté: 127.0.0.1:47898 (PID: 22577)
+[2025-06-28 16:07:16] [INFO] Superviseur démarré avec suivi des clients
+[2025-06-28 16:07:29] [INFO] Superviseur démarré avec suivi des clients
+[2025-06-28 16:08:44] [INFO] Superviseur démarré avec suivi des clients
+[2025-06-28 16:09:53] [INFO] Nouveau client connecté: 127.0.0.1:56122 (PID: 23949) - Total: 1 clients
+[2025-06-28 16:10:03] [INFO] Client déconnecté: 127.0.0.1:56122 (PID: 23949)
+[2025-06-28 16:10:45] [ALERTE] ALERT:CPU_HIGH:87.11
+
+[2025-06-28 16:10:45] [ALERTE] Signal SIGUSR1 reçu : CPU élevé détecté !
+[2025-06-28 16:10:50] [ALERTE] ALERT:CPU_HIGH:99.59
+
+[2025-06-28 16:10:50] [ALERTE] Signal SIGUSR1 reçu : CPU élevé détecté !
+[2025-06-28 16:10:55] [ALERTE] ALERT:CPU_HIGH:90.61
+
+[2025-06-28 16:10:55] [ALERTE] Signal SIGUSR1 reçu : CPU élevé détecté !
+[2025-06-28 16:18:48] [INFO] Superviseur démarré avec suivi des clients
+[2025-06-28 16:19:43] [INFO] Nouveau client connecté: 127.0.0.1:49878 (PID: 26637) - Total: 1 clients
+[2025-06-28 16:19:53] [INFO] Client déconnecté: 127.0.0.1:49878 (PID: 26637)
+[2025-06-28 16:22:08] [INFO] Nouveau client connecté: 127.0.0.1:57546 (PID: 26673) - Total: 1 clients
+[2025-06-28 16:22:18] [INFO] Client déconnecté: 127.0.0.1:57546 (PID: 26673)
+[2025-06-28 16:22:22] [INFO] Nouveau client connecté: 127.0.0.1:55316 (PID: 26693) - Total: 1 clients
+[2025-06-28 16:22:32] [INFO] Client déconnecté: 127.0.0.1:55316 (PID: 26693)
+[2025-06-28 16:56:18] [INFO] Superviseur démarré avec suivi des clients
+[2025-06-28 17:00:00] [INFO] Superviseur démarré avec suivi des clients
+[2025-06-28 17:00:15] [INFO] Superviseur démarré avec suivi des clients
+[2025-06-28 17:00:25] [INFO] Superviseur démarré avec suivi des clients
+[2025-06-28 17:01:33] [INFO] Nouveau client connecté: 127.0.0.1:45762 (PID: 28469) - Total: 1 clients
+[2025-06-28 17:01:34] [INFO] Nouveau client connecté: 127.0.0.1:52612 (PID: 28489) - Total: 2 clients
+[2025-06-28 17:01:43] [INFO] Client déconnecté: 127.0.0.1:45762 (PID: 28469)
+[2025-06-28 17:01:44] [INFO] Client déconnecté: 127.0.0.1:52612 (PID: 28489)
+[2025-06-28 17:03:20] [INFO] Superviseur démarré avec suivi des clients
+[2025-06-28 17:03:40] [INFO] Nouveau client connecté: 127.0.0.1:34758 (PID: 28952) - Total: 1 clients
+[2025-06-28 17:03:41] [INFO] Nouveau client connecté: 127.0.0.1:34760 (PID: 28971) - Total: 2 clients
+[2025-06-28 17:03:50] [INFO] Client déconnecté: 127.0.0.1:34758 (PID: 28952)
+[2025-06-28 17:03:51] [INFO] Client déconnecté: 127.0.0.1:34760 (PID: 28971)
+[2025-06-28 17:08:58] [INFO] Superviseur démarré avec suivi des clients
+[2025-06-28 17:10:44] [INFO] Nouveau client connecté: 127.0.0.1:36592 (PID: 31406) - Total: 1 clients
+[2025-06-28 17:10:45] [INFO] Nouveau client connecté: 127.0.0.1:40500 (PID: 31424) - Total: 2 clients
+[2025-06-28 17:10:54] [INFO] Client déconnecté: 127.0.0.1:36592 (PID: 31406)
+[2025-06-28 17:10:55] [INFO] Client déconnecté: 127.0.0.1:40500 (PID: 31424)
+[2025-06-28 17:12:18] [INFO] Nouveau client connecté: 127.0.0.1:56456 (PID: 31848) - Total: 1 clients
+[2025-06-28 17:12:19] [INFO] Nouveau client connecté: 127.0.0.1:56462 (PID: 31869) - Total: 2 clients
+[2025-06-28 17:12:28] [INFO] Client déconnecté: 127.0.0.1:56456 (PID: 31848)
+[2025-06-28 17:12:29] [INFO] Client déconnecté: 127.0.0.1:56462 (PID: 31869)
+[2025-06-28 17:35:31] [INFO] Superviseur démarré avec suivi des clients
+[2025-06-28 17:53:20] [INFO] Superviseur démarré avec suivi des clients
+[2025-06-28 17:53:43] [INFO] Nouveau client connecté: 127.0.0.1:51912 (PID: 40628) - Total: 1 clients
+[2025-06-28 17:53:45] [INFO] Nouveau client connecté: 127.0.0.1:54802 (PID: 40643) - Total: 2 clients
+[2025-06-28 17:53:53] [INFO] Client déconnecté: 127.0.0.1:51912 (PID: 40628)
+[2025-06-28 17:53:55] [INFO] Client déconnecté: 127.0.0.1:54802 (PID: 40643)
+[2025-06-28 17:55:11] [INFO] Nouveau client connecté: 127.0.0.1:37722 (PID: 41402) - Total: 1 clients
+[2025-06-28 17:55:12] [INFO] Nouveau client connecté: 127.0.0.1:37726 (PID: 41427) - Total: 2 clients
+[2025-06-28 17:55:21] [INFO] Client déconnecté: 127.0.0.1:37722 (PID: 41402)
+[2025-06-28 17:55:22] [INFO] Client déconnecté: 127.0.0.1:37726 (PID: 41427)
+[2025-06-28 17:56:29] [ALERTE] ALERT:CPU_HIGH:94.32
+
+[2025-06-28 17:56:29] [ALERTE] Signal SIGUSR1 reçu : CPU élevé détecté !
+[2025-06-28 17:56:54] [ALERTE] ALERT:CPU_HIGH:77.58
+
+[2025-06-28 17:56:54] [ALERTE] Signal SIGUSR1 reçu : CPU élevé détecté !
+[2025-06-28 17:58:14] [ALERTE] ALERT:CPU_HIGH:77.34
+
+[2025-06-28 17:58:14] [ALERTE] Signal SIGUSR1 reçu : CPU élevé détecté !
+[2025-06-28 17:58:24] [ALERTE] ALERT:CPU_HIGH:77.11
+
+[2025-06-28 17:58:24] [ALERTE] Signal SIGUSR1 reçu : CPU élevé détecté !
+[2025-06-28 18:00:34] [ALERTE] ALERT:CPU_HIGH:80.52
+
+[2025-06-28 18:00:34] [ALERTE] Signal SIGUSR1 reçu : CPU élevé détecté !
+[2025-06-28 18:01:59] [ALERTE] ALERT:CPU_HIGH:90.47
+
+[2025-06-28 18:01:59] [ALERTE] Signal SIGUSR1 reçu : CPU élevé détecté !
+[2025-06-28 18:03:19] [ALERTE] ALERT:CPU_HIGH:86.21
+
+[2025-06-28 18:03:19] [ALERTE] Signal SIGUSR1 reçu : CPU élevé détecté !
+[2025-06-28 18:08:19] [ALERTE] ALERT:CPU_HIGH:82.04
+
+[2025-06-28 18:08:19] [ALERTE] Signal SIGUSR1 reçu : CPU élevé détecté !
+[2025-06-28 18:08:59] [ALERTE] ALERT:CPU_HIGH:82.30
+
+[2025-06-28 18:08:59] [ALERTE] Signal SIGUSR1 reçu : CPU élevé détecté !
+[2025-06-28 18:09:39] [ALERTE] ALERT:CPU_HIGH:78.58
+
+[2025-06-28 18:09:39] [ALERTE] Signal SIGUSR1 reçu : CPU élevé détecté !
+[2025-06-28 18:12:20] [ALERTE] ALERT:CPU_HIGH:76.33
+
+[2025-06-28 18:12:20] [ALERTE] Signal SIGUSR1 reçu : CPU élevé détecté !
+[2025-06-28 18:12:30] [ALERTE] ALERT:CPU_HIGH:85.24
+
+[2025-06-28 18:12:30] [ALERTE] Signal SIGUSR1 reçu : CPU élevé détecté !
+[2025-06-28 18:12:35] [ALERTE] ALERT:CPU_HIGH:76.43
+
+[2025-06-28 18:12:35] [ALERTE] Signal SIGUSR1 reçu : CPU élevé détecté !
+[2025-06-28 18:15:15] [ALERTE] ALERT:CPU_HIGH:76.72
+
+[2025-06-28 18:15:15] [ALERTE] Signal SIGUSR1 reçu : CPU élevé détecté !
+[2025-06-28 18:15:25] [ALERTE] ALERT:CPU_HIGH:82.15
+
+[2025-06-28 18:15:25] [ALERTE] Signal SIGUSR1 reçu : CPU élevé détecté !
+[2025-06-28 18:17:30] [ALERTE] ALERT:CPU_HIGH:78.40
+
+[2025-06-28 18:17:30] [ALERTE] Signal SIGUSR1 reçu : CPU élevé détecté !
+[2025-06-28 18:30:40] [ALERTE] ALERT:CPU_HIGH:75.10
+
+[2025-06-28 18:30:40] [ALERTE] Signal SIGUSR1 reçu : CPU élevé détecté !
+[2025-06-28 18:30:45] [ALERTE] ALERT:CPU_HIGH:83.08
+
+[2025-06-28 18:30:45] [ALERTE] Signal SIGUSR1 reçu : CPU élevé détecté !
+[2025-06-28 18:33:06] [ALERTE] ALERT:CPU_HIGH:79.69
+
+[2025-06-28 18:33:06] [ALERTE] Signal SIGUSR1 reçu : CPU élevé détecté !

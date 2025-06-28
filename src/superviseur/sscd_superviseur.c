@@ -206,7 +206,7 @@ void *client_monitor_thread(void *arg)
 {
     (void)arg; // Supprimer le warning sur paramètre inutilisé
     while (running) {
-        sleep(30); // Affiche les stats toutes les 30 secondes
+        sleep(5); // Affiche les stats toutes les 5 secondes
         if (running) {
             printf("[Superviseur] 📊 Clients actifs: %d\n", client_count);
         }
@@ -382,7 +382,7 @@ int main()
     printf("Superviseur démarré sur le port %d\n", config.port);
     printf("Commandes disponibles:\n");
     printf("  - SIGUSR2 : Afficher les clients connectés\n");
-    printf("  - SIGTERM : Arrêt gracieux\n\n");
+   // printf("  - SIGTERM : Arrêt gracieux\n\n");
     log_event("INFO", "Superviseur démarré avec suivi des clients");
 
     while (!shutdown_flag)
