@@ -17,7 +17,8 @@
         border: 1px solid #ccc;
         margin-bottom: 30px;
         max-width: 100%;
-        height: auto;
+        width: 100vw;
+        height: 300px;
       }
       .chart-container {
         margin-bottom: 30px;
@@ -197,8 +198,8 @@
               datasets: datasets,
             },
             options: {
-              responsive: true,
-              maintainAspectRatio: false,
+              responsive: false, // <-- désactive le redimensionnement automatique
+              maintainAspectRatio: false, // <-- tu peux garder false ici si tu veux la hauteur CSS fixe
               animation: {
                 duration: 0,
               },
